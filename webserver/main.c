@@ -8,7 +8,6 @@ int main (int argc , char ** argv ){
 		printf("Don’t Panic !\n" );
 		return 42;
 	}
-	printf("Need an advice ?\n");
-	creer_serveur(8000);
+	creer_serveur(8080);
 	return 0;
 }

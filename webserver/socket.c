@@ -9,6 +9,7 @@ int creer_serveur (int port){
 	const char * message_bienvenue = "Bienvenue sur le serveur Ymédétong ! \n" ;
 	char buffer[512];
 	int length;
+	int optval = 1;
 
 	/*Création de socket serveur*/
 	socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
@@ -27,6 +28,10 @@ int creer_serveur (int port){
 
 	if(listen(socket_serveur, 10) == -1){
 		perror("listen socket_serveur");
+	}
+	
+	if(setsockopt(socket_serveur, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1){
+		perror(" Can not set SO_REUSEADDR option ");
 	}
 
 	socket_client = accept(socket_serveur,NULL,NULL);

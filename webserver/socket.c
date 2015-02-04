@@ -1,5 +1,10 @@
 #include "socket.h"
 
+void initialiser_signaux(void){
+	if(signal(SIGPIPE, SIG_IGN) == SIG_ERR){
+		perror("signal");
+	}
+}
 
 int creer_serveur (int port){
 	/*Variables*/
@@ -33,12 +38,14 @@ int creer_serveur (int port){
 	if(setsockopt(socket_serveur, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1){
 		perror(" Can not set SO_REUSEADDR option ");
 	}
-
+	
 	socket_client = accept(socket_serveur,NULL,NULL);
 	if(socket_client == -1){
 		perror("accept");
 		/* traitement d ’ erreur */
 	}
+	
+	initialiser_signaux();
 
 	/* On peut maintenant dialoguer avec le client */
 	sleep(1);

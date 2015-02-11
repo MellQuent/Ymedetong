@@ -19,4 +19,5 @@ socket créée . */
 
 int creer_serveur (int port );
 int tailleClient(int socket_client, char * messageClient);
+void compterChar(char c[], int length);
 # endif

@@ -11,11 +11,11 @@ int creer_serveur (int port){
 	int socket_serveur ;
 	int socket_client;
 	struct sockaddr_in saddr ;
-	const char * message_bienvenue = "Bienvenue sur le serveur Ymédétong ! \n" ;
+	const char * message_bienvenue = "Bienvenue sur le serveur Ymédétong ! Blblblblblblblb blblblbblb blblblbblb blblblbblb blblblbblb  blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb \n" ;
 	char buffer[512];
 	int length;
 	int optval = 1;
-
+	
 	/*Création de socket serveur*/
 	socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
 	if(socket_serveur == -1){
@@ -26,6 +26,11 @@ int creer_serveur (int port){
 	saddr.sin_family = AF_INET ; /* Socket ipv4 */
 	saddr.sin_port = htons(port); /* Port d ’ écoute */
 	saddr.sin_addr.s_addr = INADDR_ANY ; /* écoute sur toutes les interfaces */
+	
+	if(setsockopt(socket_serveur, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1){
+		perror(" Can not set SO_REUSEADDR option ");
+	}
+	
 	if(bind(socket_serveur,(struct sockaddr *)& saddr,sizeof(saddr)) == -1){
 		perror("bind socker_serveur");
 		exit(-1);
@@ -35,9 +40,7 @@ int creer_serveur (int port){
 		perror("listen socket_serveur");
 	}
 	
-	if(setsockopt(socket_serveur, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1){
-		perror(" Can not set SO_REUSEADDR option ");
-	}
+
 	
 	socket_client = accept(socket_serveur,NULL,NULL);
 	if(socket_client == -1){
@@ -45,21 +48,36 @@ int creer_serveur (int port){
 		/* traitement d ’ erreur */
 	}
 	
-	initialiser_signaux();
+
 
 	/* On peut maintenant dialoguer avec le client */
 	sleep(1);
 	write(socket_client, message_bienvenue, strlen(message_bienvenue));
 
+	initialiser_signaux();
+
 	while(1){
 		length = read(socket_client, buffer, 512);
 		if(length>=0){
 			buffer[length]='\0';
+			if(strcmp(buffer, "exit\r\n")==0){
+				printf("Le client se déconnecte\n");
+				exit(0);
+			}
 			printf("%s", buffer);
 			write(socket_client, buffer, length);
 		}
+	
 	}
 	return 0;
 }
+
+void compterChar(char c[], int length){
+	int cpt=0;
+	for (cpt=0; cpt<length; cpt++){
+		printf("%d : %d\n",cpt, c[cpt]);
+	}
+}
+
 	
 	

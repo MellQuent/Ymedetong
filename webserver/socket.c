@@ -1,9 +1,25 @@
 #include "socket.h"
 
 void initialiser_signaux(void){
+	struct sigaction sa ;
+	
+sa.sa_handler = traitement_signal ;
+	sigemptyset (& sa . sa_mask );
+	sa.sa_flags = SA_RESTART ;
+	if(sigaction(SIGCHLD,&sa,NULL) == -1){
+		perror("sigaction(SIGCHLD)");
+	}
+
 	if(signal(SIGPIPE, SIG_IGN) == SIG_ERR){
 		perror("signal");
 	}
+
+
+}
+
+void traitement_signal (int sig){
+	printf("Signal %d reçu \n" , sig);
+	waitpid(-1, NULL, WNOHANG);
 }
 
 int creer_serveur (int port){
@@ -55,13 +71,13 @@ int creer_serveur (int port){
 			return -1;
 		}
 
+		
+		initialiser_signaux();
+
 		if(pid==0){
 			/* On peut maintenant dialoguer avec le client */
 			sleep(1);
 			write(socket_client, message_bienvenue, strlen(message_bienvenue));
-
-			initialiser_signaux();
-
 		
 			while(1){
 				length = read(socket_client, buffer, 512);

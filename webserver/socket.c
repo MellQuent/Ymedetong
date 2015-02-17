@@ -27,7 +27,7 @@ int creer_serveur (int port){
 	int socket_serveur ;
 	int socket_client;
 	struct sockaddr_in saddr ;
-	const char * message_bienvenue = "Bienvenue sur le serveur Ymédétong ! Blblblblblblblb blblblbblb blblblbblb blblblbblb blblblbblb  blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb \n" ;
+	const char * message_bienvenue = "Bienvenue sur le serveur Ymédétong ! Blblblblblblblb blblblbblb blblblbblb blblblbblb blblblbblb  blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblblbblbl blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb bonjour\n" ;
 	char buffer[512];
 	int length;
 	int optval = 1;

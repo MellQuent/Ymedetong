@@ -15,6 +15,7 @@ int creer_serveur (int port){
 	char buffer[512];
 	int length;
 	int optval = 1;
+	int pid;
 	
 	/*Création de socket serveur*/
 	socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
@@ -41,35 +42,47 @@ int creer_serveur (int port){
 	}
 	
 
-	
-	socket_client = accept(socket_serveur,NULL,NULL);
-	if(socket_client == -1){
-		perror("accept");
-		/* traitement d ’ erreur */
-	}
-	
-
-
-	/* On peut maintenant dialoguer avec le client */
-	sleep(1);
-	write(socket_client, message_bienvenue, strlen(message_bienvenue));
-
-	initialiser_signaux();
-
 	while(1){
-		length = read(socket_client, buffer, 512);
-		if(length>=0){
-			buffer[length]='\0';
-			if(strcmp(buffer, "exit\r\n")==0){
-				printf("Le client se déconnecte\n");
-				exit(0);
-			}
-			printf("%s", buffer);
-			write(socket_client, buffer, length);
+		socket_client = accept(socket_serveur,NULL,NULL);
+		if(socket_client == -1){
+			perror("accept");
+			/* traitement d ’ erreur */
 		}
 	
+		pid = fork();
+		if(pid<0){
+			printf("Error");
+			return -1;
+		}
+
+		if(pid==0){
+			/* On peut maintenant dialoguer avec le client */
+			sleep(1);
+			write(socket_client, message_bienvenue, strlen(message_bienvenue));
+
+			initialiser_signaux();
+
+		
+			while(1){
+				length = read(socket_client, buffer, 512);
+				if(length>=0){
+					buffer[length]='\0';
+					if(strcmp(buffer, "exit\r\n")==0){
+						printf("Le client se déconnecte\n");
+						exit(0);
+					}
+					printf("%s", buffer);
+					write(socket_client, buffer, length);
+				}
+	
+			}
+		} else {
+			close(socket_client);
+		}
 	}
+	
 	return 0;
+	
 }
 
 void compterChar(char c[], int length){

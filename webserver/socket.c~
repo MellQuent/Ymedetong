@@ -84,7 +84,7 @@ int creer_serveur (int port){
 				printf("<Client@Ymedetong> %s", buffer);
 				fprintf(fp,"<Ymedetong> %s", buffer);
 				if(strcmp(buffer, "exit\r\n")==0){
-					printf("Le client se déconnecte\n");
+					printf("Le client se déconnecte \n");
 					exit(0);
 				}
 			

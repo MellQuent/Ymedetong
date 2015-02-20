@@ -1,5 +1,5 @@
 #include "socket.h"
-
+//Dernier test pour vérifier le git
 void initialiser_signaux(void){
 	struct sigaction sa ;
 	

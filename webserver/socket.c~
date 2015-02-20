@@ -27,11 +27,12 @@ int creer_serveur (int port){
 	int socket_serveur ;
 	int socket_client;
 	struct sockaddr_in saddr ;
-	const char * message_bienvenue = "Bienvenue sur le serveur Ymédétong ! Blblblblblblblb blblblbblb blblblbblb blblblbblb blblblbblb  blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblblbblbl blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb \n" ;
+	const char * message_bienvenue = "Bienvenue sur le serveur Ymédétong ! Blblblblblblblb blblblbblb blblblbblb blblblbblb blblblbblb  blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb blblblblbblbl blblblbblb blblblbblb blblblbblb blblblbblb blblblbblb bonjour\n" ;
 	char buffer[512];
-	int length;
+	//int length;
 	int optval = 1;
 	int pid;
+	FILE *fp;
 	
 	/*Création de socket serveur*/
 	socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
@@ -76,21 +77,17 @@ int creer_serveur (int port){
 
 		if(pid==0){
 			/* On peut maintenant dialoguer avec le client */
-			sleep(1);
-			write(socket_client, message_bienvenue, strlen(message_bienvenue));
-		
+			fp = fdopen(socket_client, "w+");
+			fprintf(fp, "%s", message_bienvenue);
 			while(1){
-				length = read(socket_client, buffer, 512);
-				if(length>=0){
-					buffer[length]='\0';
-					if(strcmp(buffer, "exit\r\n")==0){
-						printf("Le client se déconnecte\n");
-						exit(0);
-					}
-					printf("%s", buffer);
-					write(socket_client, buffer, length);
+				fgets(buffer, 512, fp);
+				printf("<Client@Ymedetong> %s", buffer);
+				fprintf(fp,"<Ymedetong> %s", buffer);
+				if(strcmp(buffer, "exit\r\n")==0){
+					printf("Le client se déconnecte\n");
+					exit(0);
 				}
-	
+			
 			}
 		} else {
 			close(socket_client);
@@ -108,5 +105,3 @@ void compterChar(char c[], int length){
 	}
 }
 
-	
-	

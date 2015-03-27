@@ -25,4 +25,5 @@ int tailleClient(int socket_client, char * messageClient);
 void compterChar(char c[], int length);
 void traitement_signal(int sig);
 int verifierRequete(char * chaine);
+int verifierAddress(char* chaine);
 # endif

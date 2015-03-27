@@ -34,9 +34,9 @@ int creer_serveur (int port){
 	int pid;
 	FILE *fp;
 	char* requete = malloc(sizeof(char)*512);
-	//char* reponse = malloc(sizeof(char)*512);
 	char tailleMessage[4];
 	char str[128] = "Content-length: ";
+
 	
 	/*Création de socket serveur*/
 	socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
@@ -88,7 +88,6 @@ int creer_serveur (int port){
 					fclose(fp);
 					exit(0);
 				}
-				
 				if(strcmp(buffer,"\r\n")!=0){
 					strcat(requete, buffer);
 					
@@ -101,13 +100,22 @@ int creer_serveur (int port){
 						fprintf(fp,"%s","\r\n");
 						fprintf(fp,"%s","400 Bad request\r\n");
 					}else{
-						fprintf(fp,"%s","HTTP/1.1 200 OK\r\n");
-						sprintf(tailleMessage, "%u", (int)strlen(message_bienvenue));
-						strcat(str, tailleMessage);
-						strcat(str,"\r\n");
-						fprintf(fp,"%s",str);
-						fprintf(fp,"\r\n");
-						fprintf(fp,message_bienvenue);
+						printf(requete);
+						if(verifierAddress(requete)==0){
+							fprintf(fp,"%s","HTTP/1.1 200 OK\r\n");
+							sprintf(tailleMessage, "%u", (int)strlen(message_bienvenue));
+							strcat(str, tailleMessage);
+							strcat(str,"\r\n");
+							fprintf(fp,"%s",str);
+							fprintf(fp,"\r\n");
+							fprintf(fp,message_bienvenue);
+						}else{
+							fprintf(fp,"%s","HTTP/1.1 404 Not Found\r\n");
+							fprintf(fp,"%s","Connection: close\r\n");
+							fprintf(fp,"%s","Content-Length: 15\r\n");
+							fprintf(fp,"%s","\r\n");
+							fprintf(fp,"%s","404 Not found\r\n");
+						}
 
 					}
 				}
@@ -134,13 +142,31 @@ void compterChar(char c[], int length){
 	}
 }
 
+int verifierAddress(char *chaine){
+	char* requete = malloc(sizeof(char)*512);
+	strcpy(requete, chaine);
+	int nbMot=0;
+	char *token;
+	token = strtok(requete, " ");
+	while(token!=NULL){
+		if(nbMot==1 && strcmp(token,"/")==0){
+			return 0;
+		}
+		nbMot++;
+		token = strtok(NULL, " ");
+	}
+	return 1;
+}
+
 int verifierRequete(char *chaine){
+	char* requete = malloc(sizeof(char)*512);
+	strcpy(requete, chaine);
 	int nbMot=0;
 	char *token;
 	char *phrase;
 	int get=1;
 	int http=1;
-	phrase=strtok(chaine,"\r\n");
+	phrase=strtok(requete,"\r\n");
 	token = strtok(phrase, " ");
 	while(token!=NULL){
 		//Verification des 

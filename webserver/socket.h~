@@ -10,6 +10,8 @@
 
 # ifndef __SOCKET_H__
 # define __SOCKET_H__
+#define VRAI 0
+#define FAUX 1
 /* * Crée une socket serveur qui écoute sur toute les interfaces IPv4
 de la machine sur le port passé en paramètre . La socket retournée
 doit pouvoir être utilisée directement par un appel à accept .
@@ -21,5 +23,5 @@ int creer_serveur (int port );
 int tailleClient(int socket_client, char * messageClient);
 void compterChar(char c[], int length);
 void traitement_signal(int sig);
-static void search(char *chaine);
+int verifierRequete(char * c);
 # endif

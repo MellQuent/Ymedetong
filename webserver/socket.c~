@@ -1,5 +1,5 @@
 #include "socket.h"
-
+//Dernier test pour vérifier le git
 void initialiser_signaux(void){
 	struct sigaction sa ;
 	
@@ -33,6 +33,7 @@ int creer_serveur (int port){
 	int optval = 1;
 	int pid;
 	FILE *fp;
+	//char* requete = malloc(sizeof(char)*512);
 	
 	/*Création de socket serveur*/
 	socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
@@ -81,8 +82,19 @@ int creer_serveur (int port){
 			fprintf(fp, "%s", message_bienvenue);
 			while(1){
 				fgets(buffer, 512, fp);
-				printf("<Client@Ymedetong> %s", buffer);
-				fprintf(fp,"<Ymedetong> %s", buffer);
+				//printf("<Client@Ymedetong> %s", buffer);
+				if(strcmp(buffer,"\r\n ")!=0){
+					strcat(requete, buffer);
+					strcat(requete," ");
+				}else{
+					if(verifierRequete(requete)==1){
+						fprintf(fp,"%s","HTTP/1.1 400 Bad Request\r\n");
+						fprintf(fp,"%s","Connection: close\r\n");
+						fprintf(fp,"%s","Content-Length: 17\r\n");
+						fprintf(fp,"%s","\r\n");
+						fprintf(fp,"%s","400 Bad request\r\n");
+					}
+				}
 				if(strcmp(buffer, "exit\r\n")==0){
 					printf("Le client se déconnecte \n");
 					exit(0);
@@ -95,9 +107,10 @@ int creer_serveur (int port){
 	}
 	
 	return 0;
-	
+
 }
 
+//Fonction vraiment super utile pour voir un peu comment les chaines sont construites hein.
 void compterChar(char c[], int length){
 	int cpt=0;
 	for (cpt=0; cpt<length; cpt++){
@@ -105,3 +118,27 @@ void compterChar(char c[], int length){
 	}
 }
 
+int verifierRequete(char *chaine){
+	int nbMot=0;
+	char *token;
+	int get=1;
+	int http=1;
+	token = strtok(chaine, " ");
+	while(token!=NULL){
+		
+		//Verification des 
+		if(nbMot==0 && strcmp(token,"GET")==0){
+			get=0;
+		}
+		if(nbMot==2 && (strcmp(token,"HTTP/1.0\r\n")==0|| (strcmp(token,"HTTP/1.1\r\n")==0))){
+			http=0;
+		}
+		nbMot++;
+		token = strtok(NULL, " ");
+	}
+	if(nbMot==3 && get==0 && http==0){
+		return 0;
+	}else{
+		return 1;
+	}
+}

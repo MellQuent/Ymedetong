@@ -33,6 +33,10 @@ int creer_serveur (int port){
 	int optval = 1;
 	int pid;
 	FILE *fp;
+	char* requete = malloc(sizeof(char)*512);
+	//char* reponse = malloc(sizeof(char)*512);
+	char tailleMessage[4];
+	char str[128] = "Content-length: ";
 	
 	/*Création de socket serveur*/
 	socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
@@ -78,11 +82,35 @@ int creer_serveur (int port){
 		if(pid==0){
 			/* On peut maintenant dialoguer avec le client */
 			fp = fdopen(socket_client, "w+");
-			fprintf(fp, "%s", message_bienvenue);
+
 			while(1){
-				fgets(buffer, 512, fp);
-				printf("<Client@Ymedetong> %s", buffer);
-				fprintf(fp,"<Ymedetong> %s", buffer);
+				if(fgets(buffer, 512, fp)==NULL){
+					fclose(fp);
+					exit(0);
+				}
+				
+				if(strcmp(buffer,"\r\n")!=0){
+					strcat(requete, buffer);
+					
+				}else{
+
+					if(verifierRequete(requete)==1){
+						fprintf(fp,"%s","HTTP/1.1 400 Bad Request\r\n");
+						fprintf(fp,"%s","Connection: close\r\n");
+						fprintf(fp,"%s","Content-Length: 17\r\n");
+						fprintf(fp,"%s","\r\n");
+						fprintf(fp,"%s","400 Bad request\r\n");
+					}else{
+						fprintf(fp,"%s","HTTP/1.1 200 OK\r\n");
+						sprintf(tailleMessage, "%u", (int)strlen(message_bienvenue));
+						strcat(str, tailleMessage);
+						strcat(str,"\r\n");
+						fprintf(fp,"%s",str);
+						fprintf(fp,"\r\n");
+						fprintf(fp,message_bienvenue);
+
+					}
+				}
 				if(strcmp(buffer, "exit\r\n")==0){
 					printf("Le client se déconnecte \n");
 					exit(0);
@@ -95,9 +123,10 @@ int creer_serveur (int port){
 	}
 	
 	return 0;
-	
+
 }
 
+//Fonction vraiment super utile pour voir un peu comment les chaines sont construites hein.
 void compterChar(char c[], int length){
 	int cpt=0;
 	for (cpt=0; cpt<length; cpt++){
@@ -105,3 +134,28 @@ void compterChar(char c[], int length){
 	}
 }
 
+int verifierRequete(char *chaine){
+	int nbMot=0;
+	char *token;
+	char *phrase;
+	int get=1;
+	int http=1;
+	phrase=strtok(chaine,"\r\n");
+	token = strtok(phrase, " ");
+	while(token!=NULL){
+		//Verification des 
+		if(nbMot==0 && strcmp(token,"GET")==0){
+			get=0;
+		}
+		if(nbMot==2 && (strcmp(token,"HTTP/1.0")==0 || (strcmp(token,"HTTP/1.1")==0))){
+			http=0;
+		}
+		nbMot++;
+		token = strtok(NULL, " ");
+	}
+	if(get==0 && http==0){
+		return 0;
+	}else{
+		return 1;
+	}
+}
